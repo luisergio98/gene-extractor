@@ -134,3 +134,4 @@ dmypy.json
 # Local enviroment
 temp-files/
 genes.json
+genes-*.json

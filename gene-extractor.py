@@ -1,5 +1,5 @@
 # TODO:
-# Make code find the all the right lines then get the information
+# Make code find the all the right lines then get the information (maybe will raise performance)
 
 # LINKS
 # https://www.ncbi.nlm.nih.gov/genome/?term=Arabidopsis+thaliana
@@ -9,6 +9,7 @@
 import re
 import json
 import sys
+import uuid
 
 
 def find_valid_genes_indexes(file_path):
@@ -91,22 +92,31 @@ def write_genes_sequences(sequences):
     if len(sequences) <= 0:
         raise Exception('No sequence found!')
 
-    with open("genes.json", "w") as outfile:
+    with open("genes-%s.json" % uuid.uuid4().hex, "w") as outfile:
         json.dump(sequences, outfile)
 
 
 def run(file_path):
     try:
+        print("\n")
+        print("Extracting gene sequences from %s" % file_path)
         genes_indexes = find_valid_genes_indexes(file_path)
         sequences = arrange_sequence(file_path, genes_indexes)
         write_genes_sequences(sequences)
+        print("\n")
         print("Gene extraction succeeded! %d sequences found. Check the .json file at the application folder." %
               len(sequences))
+        print("\n")
 
     except Exception as e:
+        print("\n")
         print("Error! Could not extract genes!")
         print("%s : %s" % ("Error information", str(e)))
+        print("\n")
 
 
 if __name__ == '__main__':
-    run(sys.argv[1])
+    if len(sys.argv) > 1:
+        run(sys.argv[1])
+    else:
+        print("File path not found!")
