@@ -1,5 +1,5 @@
 # TODO:
-# Make code find the all the right lines then get the information (maybe will raise performance)
+# Make code find the all the right lines then get the information (maybe will improve performance)
 
 # LINKS
 # https://www.ncbi.nlm.nih.gov/genome/?term=Arabidopsis+thaliana
@@ -49,8 +49,8 @@ def arrange_sequence(file_path, indexes):
         raise Exception('No valid gene found!')
 
     valid_interval, valid_gene = False, False
-    sequence = ""
-    sequences = []
+    gene_sequence, not_gene_sequence = "", ""
+    genes, not_genes = [], []
 
     with open(file_path, 'r') as file:
         for line in file:
@@ -58,42 +58,60 @@ def arrange_sequence(file_path, indexes):
 
             if len(split) == 1 and split[0] == "//":
                 valid_interval = False
+                if not_gene_sequence != "":
+                    not_genes.append(not_gene_sequence)
+                    not_gene_sequence = ""
 
             if valid_interval:
                 index = int(split[0])
+                split.pop(0)
+                line = "".join([str(s) for s in split])
+
+                if gene_sequence == "":
+                    if (len(indexes) == 0) or (len(indexes) > 0 and not indexes[0]["begin"] <= index + 60):
+                        not_gene_sequence = "%s%s" % (not_gene_sequence, line)
 
                 if len(indexes) > 0 and indexes[0]["begin"] <= index + 60:
-                    split.pop(0)
-                    line = "".join([str(s) for s in split])
                     cut = indexes[0]["begin"] - index
 
                     if cut <= 0:
 
                         if index + 60 >= indexes[0]["end"]:
                             cut = indexes[0]["end"] - index
-                            sequence = "%s%s" % (sequence, line[:cut])
+                            gene_sequence = "%s%s" % (gene_sequence, line[:cut])
                             indexes.pop(0)
-                            sequences.append(sequence)
-                            sequence = ""
+                            genes.append(gene_sequence)
+                            gene_sequence = ""
+                            not_gene_sequence = "%s%s" % (not_gene_sequence, line[cut:])
 
                         else:
-                            sequence = "%s%s" % (sequence, line)
+                            gene_sequence = "%s%s" % (gene_sequence, line)
 
                     else:
-                        sequence = "%s%s" % (sequence, line[cut:])
+                        gene_sequence = "%s%s" % (gene_sequence, line[cut:])
+                        not_gene_sequence = "%s%s" % (not_gene_sequence, line[:cut])
+                        not_genes.append(not_gene_sequence)
+                        not_gene_sequence = ""
 
             if len(split) == 1 and split[0] == "ORIGIN":
                 valid_interval = True
 
-    return sequences
+    return genes, not_genes
 
 
 def write_genes_sequences(sequences):
-    if len(sequences) <= 0:
-        raise Exception('No sequence found!')
+    if len(sequences[0]) <= 0 and len(sequences[1]) <= 0:
+        raise Exception('No sequence or gene found!')
 
-    with open("genes-%s.json" % uuid.uuid4().hex, "w") as outfile:
-        json.dump(sequences, outfile)
+    file_uuid = uuid.uuid4().hex
+
+    if len(sequences[0]) > 0:
+        with open("genes-%s.json" % file_uuid, "w") as outfile:
+            json.dump(sequences[0], outfile)
+
+    if len(sequences[1]) > 0:
+        with open("not-genes-%s.json" % file_uuid, "w") as outfile:
+            json.dump(sequences[1], outfile)
 
 
 def run(file_path):
@@ -105,7 +123,7 @@ def run(file_path):
         write_genes_sequences(sequences)
         print("\n")
         print("Gene extraction succeeded! %d sequences found. Check the .json file at the application folder." %
-              len(sequences))
+              len(sequences[0]))
         print("\n")
 
     except Exception as e:

@@ -5,7 +5,7 @@ DNA sequence extractor from genes inside CDS in .gbff files
 
 ## English
 
-This script extracts the DNA sequence from genes inside a CDS in .gbff files (NCBI standart).
+This script extracts the DNA sequence from genes inside a CDS in .gbff files (NCBI standard).
 
 ### How to run the script
 
@@ -13,7 +13,7 @@ The main method to run is direct from powershell, bash or cmd (or other terminal
 
 <code>py gene-extractor.py {YOUR_GBFF_FILE_PATH}</code> or <code>python gene-extractor.py {YOUR_GBFF_FILE_PATH}</code>.
 
-Depending of how is Python installed at the machine this command could be different.
+Depending on how is Python installed at the machine this command could be different.
 
 Example: <code>py gene-extractor.py ./temp-files/GCF_000001735.4/genomic.gbff</code>
 
@@ -27,7 +27,8 @@ Example: <code>run("./temp-files/GCF_000001735.4/genomic.gbff")</code>
 
 <br>
 
-If the .gbff is valid and have valid genes to extract, the genes sequences will be written in a json file named <code>genes.json</code> in a array.
+If the .gbff is valid and have valid genes to extract, the genes sequences will be written in a json file named <code>genes-{SOME-RANDOM-UUID}.json</code> in an array.
+Now the other sequences will be written in another json file named <code>not-genes-{SOME-RANDOM-UUID}.json</code> in an array for AI purposes.
 
 <br>
 
@@ -55,6 +56,7 @@ Exemplo: <code>run("./temp-files/GCF_000001735.4/genomic.gbff")</code>
 
 <br>
 
-Se o arquivo .gbff for válido e tiver genes válidos a serem extraídos, as sequencias serão gravadas em um arquivo json chamado <code>genes.json</code> dentro de um vetor.
+Se o arquivo .gbff for válido e tiver genes válidos a serem extraídos, as sequencias serão gravadas em um arquivo json chamado <code>genes-{UUID-ALEATÓRIO}.json</code> dentro de um vetor.
+Agora as outras sequências também serão gravadas em outro arquivo json chamado <code>not-genes-{UUID-ALEATÓRIO}.json</code> dentro de um vetor para o uso em IA.
 
 <br>
